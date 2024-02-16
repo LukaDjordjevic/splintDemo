@@ -1,6 +1,7 @@
 import {createSlice, PayloadAction, createAsyncThunk} from '@reduxjs/toolkit';
 
 import {RootState} from './Store';
+import {apiKey} from '../constants';
 
 export interface StockListItemType {
   ticker: string;
@@ -24,10 +25,6 @@ const initialState: HomeType = {
   status: 'idle',
 };
 
-// const apiKey = '7IS15LNFJ6M5YW9W';
-const apiKey = 'demo';
-console.log('apiKey: ', apiKey);
-
 export const getStocksLists = createAsyncThunk(
   'home/getStocksLists',
   async (_, {dispatch, getState}) => {
@@ -36,6 +33,10 @@ export const getStocksLists = createAsyncThunk(
       const response = await fetch(url);
       const json = await response.json();
       console.log('json: ', json);
+      if (json?.Information) {
+        console.log('rejecting');
+        return Promise.reject('API key rejected');
+      }
       return json;
     } catch (error) {
       console.log('error: ', error);

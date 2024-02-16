@@ -12,7 +12,7 @@ export const formatBigNumber = (number: number) => {
   }
 };
 
-// function formatCompactNumber(number: number) {
+// function formatBigNumber(number: number) {
 //   const formatter = Intl.NumberFormat('en', {
 //     notation: 'compact',
 //     compactDisplay: 'short',

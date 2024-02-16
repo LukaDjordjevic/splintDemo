@@ -27,13 +27,12 @@ type HomeProps = {
 
 const Home: React.FC<HomeProps> = ({navigation}) => {
   console.log('home renderrr');
+  const dispatch: AppDispatch = useDispatch();
+
   const gainers = useSelector(selectGainers);
   const losers = useSelector(selectLosers);
   const apiStatus = useSelector(selectStatus);
-  console.log('apiStatus: ', apiStatus);
   const mostTraded = useSelector(selectMostActive);
-
-  const dispatch: AppDispatch = useDispatch();
 
   type ListType = 'gainers' | 'losers' | 'mostTraded';
   // type ListType = string;
@@ -52,8 +51,6 @@ const Home: React.FC<HomeProps> = ({navigation}) => {
   }, [dispatch]);
 
   const isActivityIndicatorVisible = apiStatus === 'loading';
-  // const isActivityIndicatorVisible = true;
-
   const onTableRowPress = (symbol: String) => {
     navigation.navigate('Stock details', {symbol});
   };
@@ -71,24 +68,21 @@ const Home: React.FC<HomeProps> = ({navigation}) => {
       <View style={styles.root}>
         <View style={styles.buttons}>
           <Button
-            disabled={listType === 'mostTraded'}
-            // color={listType === 'mostTraded' ? 'black' : 'grey'}
-            title="Most Traded"
-            onPress={() => {
-              setListType('mostTraded');
-            }}
-          />
-          <Button
             disabled={listType === 'gainers'}
-            // color={listType === 'gainers' ? 'black' : 'grey'}
             title="Gainers"
             onPress={() => {
               setListType('gainers');
             }}
           />
           <Button
+            disabled={listType === 'mostTraded'}
+            title="Most Traded"
+            onPress={() => {
+              setListType('mostTraded');
+            }}
+          />
+          <Button
             disabled={listType === 'losers'}
-            // color={listType === 'losers' ? 'black' : 'grey'}
             title="Losers"
             onPress={() => {
               setListType('losers');
@@ -126,11 +120,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     marginTop: 20,
     marginBottom: 20,
-  },
-  button: {
-    fontSize: 8,
-    borderStyle: 'solid',
-    borderWidth: 1,
   },
 });
 

@@ -16,9 +16,7 @@ const TableRow: React.FC<TableRowProps> = ({data, isHeader, onPress}) => {
 
   const textStyle = isHeader ? styles.headerRow : {};
 
-  const formattedPercentage = parseFloat(
-    change_percentage.substring(0, change_percentage.length - 1),
-  ).toFixed(2);
+  const formattedPercentage = parseFloat(change_percentage).toFixed(2);
 
   const formattedVolume = formatBigNumber(parseInt(volume, 10));
 
