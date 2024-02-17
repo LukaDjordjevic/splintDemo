@@ -2,7 +2,7 @@ import React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 
 import {StockListItemType} from '../store/homeSlice';
-import {formatBigNumber} from '../util/numbers';
+import {formatBigNumber, getColorByPercentage} from '../util/numbers';
 
 type TableRowProps = {
   key?: React.Key;
@@ -19,6 +19,7 @@ const TableRow: React.FC<TableRowProps> = ({data, isHeader, onPress}) => {
   const formattedPercentage = parseFloat(change_percentage).toFixed(2);
 
   const formattedVolume = formatBigNumber(parseInt(volume, 10));
+  const percentageColor = getColorByPercentage(parseFloat(formattedPercentage));
 
   return (
     <TouchableOpacity onPress={() => onPress(data.ticker)}>
@@ -33,7 +34,7 @@ const TableRow: React.FC<TableRowProps> = ({data, isHeader, onPress}) => {
           <Text style={textStyle}>{change_amount}</Text>
         </View>
         <View style={styles.item}>
-          <Text style={textStyle}>
+          <Text style={{color: percentageColor}}>
             {isHeader ? change_percentage : `${formattedPercentage}%`}
           </Text>
         </View>

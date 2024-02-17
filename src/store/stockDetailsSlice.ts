@@ -21,18 +21,12 @@ export interface GraphDataPointType {
 export interface StockDetailsType {
   status: 'idle' | 'failed' | 'loading';
   dailyRawData: StockTimeRangeType[] | null;
-  dates: String[] | null;
-  prices: Number[] | null;
   graphData: GraphDataPointType[] | null;
-  // weekly: StockTimeRangeType[] | null;
-  // monthly: StockTimeRangeType[] | null;
 }
 
 const initialState: StockDetailsType = {
   status: 'idle',
   dailyRawData: null,
-  dates: null,
-  prices: null,
   graphData: null,
 };
 
@@ -62,6 +56,7 @@ const stockDetailsSlice = createSlice({
   extraReducers: builder => {
     builder.addCase(getDailyData.pending, state => {
       state.status = 'loading';
+      state.graphData = null;
     });
     builder.addCase(
       getDailyData.fulfilled,
@@ -110,8 +105,6 @@ export const selectDaily = (state: RootState) =>
 
 export const selectGraphData = (state: RootState) =>
   state.stockDetails.graphData;
-export const selectDates = (state: RootState) => state.stockDetails.dates;
-
-export const selectPrices = (state: RootState) => state.stockDetails.prices;
+export const selectStatus = (state: RootState) => state.stockDetails.status;
 
 export default stockDetailsSlice.reducer;

@@ -32,7 +32,6 @@ export const getStocksLists = createAsyncThunk(
       const url = `https://www.alphavantage.co/query?function=TOP_GAINERS_LOSERS&apikey=${apiKey}`;
       const response = await fetch(url);
       const json = await response.json();
-      console.log('json: ', json);
       if (json?.Information) {
         console.log('rejecting');
         return Promise.reject('API key rejected');

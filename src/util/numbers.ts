@@ -19,3 +19,12 @@ export const formatBigNumber = (number: number) => {
 //   });
 //   return formatter.format(number);
 // }
+
+export const getColorByPercentage = (percentage: number) => {
+  if (percentage >= 0) {
+    const green = Math.min(150, percentage * 10 + 100);
+    return `rgba(0,${green},0,1)`;
+  }
+  const red = Math.min(255, -percentage * 10 + 100);
+  return `rgba(${red},0,0,1)`;
+};

@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 
-import {View, SafeAreaView, StyleSheet, Dimensions} from 'react-native';
+import {View, SafeAreaView, StyleSheet} from 'react-native';
 import {GraphDataPointType} from '../store/stockDetailsSlice';
 
 import {
@@ -12,14 +12,22 @@ import {
   VictoryAxis,
 } from 'victory-native';
 
-type DataChartProps = {
-  graphData: GraphDataPointType[];
-};
+interface DataChartProps {
+  graphData: GraphDataPointType[] | null;
+  onTouchStart: Function;
+  onTouchEnd: Function;
+}
 
 const chartWidth = 400;
-
-const DataChart: React.FC<DataChartProps> = ({graphData}) => {
-  //   const screenWidth = Dimensions.get('window').width;
+const DataChart: React.FC<DataChartProps> = ({
+  graphData,
+  onTouchStart,
+  onTouchEnd,
+}) => {
+  //   const initialDomain = {
+  //     x: ['2019-12-05', '2024-02-16'],
+  //     y: [0, 400],
+  //   };
 
   const [zoomDomain, setZoomDomain] = useState();
   const [selectedDomain, setSelectedDomain] = useState();
@@ -41,6 +49,8 @@ const DataChart: React.FC<DataChartProps> = ({graphData}) => {
           scale={{x: 'time'}}
           containerComponent={
             <VictoryZoomContainer
+              onTouchStart={onTouchStart}
+              onTouchEnd={onTouchEnd}
               responsive={false}
               zoomDimension="x"
               zoomDomain={zoomDomain}
@@ -50,20 +60,14 @@ const DataChart: React.FC<DataChartProps> = ({graphData}) => {
           <VictoryAxis crossAxis dependentAxis />
           <VictoryAxis
             crossAxis
-            // tickFormat={() => ''}
             tickFormat={x => new Date(x).getFullYear()}
             tickCount={5}
-            tickValues={[
-              new Date(1985, 1, 1),
-              //   new Date(1990, 1, 1),
-              //   new Date(1995, 1, 1),
-              //   new Date(2000, 1, 1),
-              //   new Date(2005, 1, 1),
-              //   new Date(2010, 1, 1),
-              new Date(2015, 1, 1),
-            ]}
           />
           <VictoryLine
+            // animate={{
+            //   duration: 2000,
+            //   onLoad: {duration: 1000},
+            // }}
             style={{
               data: {stroke: 'darkblue'},
             }}
@@ -79,17 +83,15 @@ const DataChart: React.FC<DataChartProps> = ({graphData}) => {
           padding={{top: 0, left: 50, right: 50, bottom: 30}}
           containerComponent={
             <VictoryBrushContainer
+              onTouchStart={onTouchStart}
+              onTouchEnd={onTouchEnd}
               responsive={false}
               brushDimension="x"
               brushDomain={selectedDomain}
               onBrushDomainChange={onBrushDomainChange}
             />
           }>
-          <VictoryAxis
-            tickFormat={() => ''}
-            tickValues={[]}
-            // tickFormat={x => new Date(x).getFullYear()}
-          />
+          <VictoryAxis tickFormat={() => ''} tickValues={[]} />
           <VictoryLine
             style={{
               data: {stroke: 'orange'},
@@ -103,15 +105,7 @@ const DataChart: React.FC<DataChartProps> = ({graphData}) => {
 };
 
 const styles = StyleSheet.create({
-  root: {
-    // backgroundColor: 'darkblue',
-    // height: '100%',
-    // marginTop: 20,
-    // marginLeft: 20,
-    // marginRight: 20,
-    // display: 'flex',
-    // alignItems: 'center',
-  },
+  root: {},
   activityIndicator: {
     position: 'absolute',
     width: '100%',
