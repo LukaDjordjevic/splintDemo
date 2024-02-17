@@ -2,6 +2,7 @@ import {createSlice, PayloadAction, createAsyncThunk} from '@reduxjs/toolkit';
 import {apiKey} from '../constants';
 
 import {RootState} from './Store';
+import {convertApiDataToGraphFormat} from '../util/data';
 
 interface StockTimePointValuesType {
   '1. open': string;
@@ -18,17 +19,49 @@ export interface GraphDataPointType {
   y: Number;
 }
 
-export interface StockDetailsType {
+export interface CompanyOverviewType {
+  Name?: string;
+  Description?: string;
+  Address?: string;
+  Country?: string;
+  Exchange?: string;
+  Industry?: string;
+  QuarterlyEarningsGrowthYOY?: string;
+  QuarterlyRevenueGrowthYOY?: string;
+}
+
+export interface StockDetailsSliceType {
   status: 'idle' | 'failed' | 'loading';
   dailyRawData: StockTimeRangeType[] | null;
   graphData: GraphDataPointType[] | null;
+  companyOverview: CompanyOverviewType | null;
 }
 
-const initialState: StockDetailsType = {
+const initialState: StockDetailsSliceType = {
   status: 'idle',
   dailyRawData: null,
   graphData: null,
+  companyOverview: null,
 };
+
+export const getCompanyOverview = createAsyncThunk(
+  'stockDetails/getCompanyOverview',
+  async (symbol: String) => {
+    try {
+      const url = `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${symbol}&apikey=demo`;
+      const response = await fetch(url);
+      const json = await response.json();
+      console.log('overview json: ', json);
+      if (json?.Information) {
+        console.log('rejecting');
+        return Promise.reject('API key rejected');
+      }
+      return json;
+    } catch (error) {
+      console.log('error: ', error);
+    }
+  },
+);
 
 export const getDailyData = createAsyncThunk(
   'stockDetails/getDailyData',
@@ -42,7 +75,8 @@ export const getDailyData = createAsyncThunk(
         return Promise.reject('API key rejected');
       }
       const dailyData = json['Time Series (Daily)'];
-      return dailyData;
+
+      return convertApiDataToGraphFormat(dailyData);
     } catch (error) {
       console.log('error: ', error);
     }
@@ -62,35 +96,25 @@ const stockDetailsSlice = createSlice({
       getDailyData.fulfilled,
       (state, action: PayloadAction<any>) => {
         state.status = 'idle';
-        const data = action.payload;
-
-        const dates = Object.keys(data);
-
-        const victoryGraphData = dates.map(date => {
-          return {
-            x: date,
-            y: parseFloat(data[date]['1. open']),
-          };
-        });
-
-        const graphDataSize = victoryGraphData.length;
-
-        const scaleFactor = Math.floor(graphDataSize / 375); // screen width
-
-        let filteredGraphData;
-
-        if (scaleFactor > 1) {
-          filteredGraphData = victoryGraphData
-            .filter((dataPoint, index) => index % (scaleFactor * 2) === 0)
-            .reverse();
-        } else {
-          filteredGraphData = victoryGraphData.reverse();
-        }
-
-        state.graphData = filteredGraphData;
+        state.graphData = action.payload;
       },
     );
     builder.addCase(getDailyData.rejected, (state, action) => {
+      console.log('FAILED action: ', action);
+      state.status = 'failed';
+    });
+    builder.addCase(getCompanyOverview.pending, state => {
+      state.status = 'loading';
+      state.companyOverview = null;
+    });
+    builder.addCase(
+      getCompanyOverview.fulfilled,
+      (state, action: PayloadAction<any>) => {
+        state.status = 'idle';
+        state.companyOverview = action.payload;
+      },
+    );
+    builder.addCase(getCompanyOverview.rejected, (state, action) => {
       console.log('FAILED action: ', action);
       state.status = 'failed';
     });
@@ -106,5 +130,7 @@ export const selectDaily = (state: RootState) =>
 export const selectGraphData = (state: RootState) =>
   state.stockDetails.graphData;
 export const selectStatus = (state: RootState) => state.stockDetails.status;
+export const selectCompanyOverview = (state: RootState) =>
+  state.stockDetails.companyOverview;
 
 export default stockDetailsSlice.reducer;

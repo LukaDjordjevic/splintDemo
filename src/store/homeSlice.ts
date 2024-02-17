@@ -11,14 +11,14 @@ export interface StockListItemType {
   volume: string;
 }
 
-interface HomeType {
+interface HomeSliceType {
   gainers: StockListItemType[] | null;
   losers: StockListItemType[] | null;
   mostActive: StockListItemType[] | null;
   status: 'idle' | 'failed' | 'loading';
 }
 
-const initialState: HomeType = {
+const initialState: HomeSliceType = {
   gainers: null,
   losers: null,
   mostActive: null,

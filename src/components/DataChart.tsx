@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import {minBy, maxBy, last} from 'lodash';
 
 import {View, SafeAreaView, StyleSheet} from 'react-native';
 import {GraphDataPointType} from '../store/stockDetailsSlice';
@@ -13,73 +14,113 @@ import {
 } from 'victory-native';
 
 interface DataChartProps {
-  graphData: GraphDataPointType[] | null;
+  graphData: GraphDataPointType[];
   onTouchStart: Function;
   onTouchEnd: Function;
 }
 
-const chartWidth = 400;
+interface GraphDomainType {
+  x: [string, string];
+  y: [Number, Number];
+}
+const chartWidth = 380;
 const DataChart: React.FC<DataChartProps> = ({
   graphData,
   onTouchStart,
   onTouchEnd,
 }) => {
-  //   const initialDomain = {
-  //     x: ['2019-12-05', '2024-02-16'],
-  //     y: [0, 400],
-  //   };
+  const getEntireDomain = (data: GraphDataPointType[]) => {
+    const minX = data?.[0]?.x;
+    const maxX = last(data)?.x;
+    return {
+      y: [minBy(data, (d: any) => d?.y)?.y, maxBy(data, (d: any) => d?.y)?.y],
+      x: [minX, maxX],
+    };
+  };
 
-  const [zoomDomain, setZoomDomain] = useState();
-  const [selectedDomain, setSelectedDomain] = useState();
+  // const entireDomain = getEntireDomain(graphData);
+  const entireDomain = {
+    x: [170, 191],
+    y: [50, 250],
+  };
+  console.log('entireDomain: ', entireDomain);
+
+  const [graphDomain, setGraphDomain] = useState(entireDomain);
+  const [selectBarDomain, setSelectBarDomain] = useState(entireDomain);
+  console.log('selectBarDomain: ', selectBarDomain);
+
+  console.log('graphDomain: ', graphDomain);
+  const getVisibleData = () => {
+    const domainX = graphDomain ? graphDomain.x : [0, 0];
+    console.log('domainX: ', domainX);
+    const data = graphData.filter(
+      // is d "between" the ends of the visible x-domain?
+      dataPoint => {
+        return dataPoint.x >= domainX[0] && dataPoint.x <= domainX[1];
+      },
+    );
+    console.log('data: ', data);
+    return data;
+  };
+
+  // getData() {
+  //   const { zoomedXDomain } = this.state;
+  //   const { data } = this.props;
+  //   return data.filter(
+  //     // is d "between" the ends of the visible x-domain?
+  //     (d) => (d.x >= zoomedXDomain[0] && d.x <= zoomedXDomain[1]));
+  // }
 
   const onZoomDomainChange = domain => {
-    setSelectedDomain(domain);
+    console.log('domain+++++++++++++++++++++++++++: ', domain);
+    setSelectBarDomain(domain);
   };
 
   const onBrushDomainChange = domain => {
-    setZoomDomain(domain);
+    console.log('domain----------------------------: ', domain);
+    setGraphDomain(domain);
   };
+
   return (
     <SafeAreaView>
       <View style={styles.root}>
         <VictoryChart
+          // domain={entireDomain}
           theme={VictoryTheme.material}
           width={chartWidth}
           height={300}
-          scale={{x: 'time'}}
+          scale={{x: 'date'}}
           containerComponent={
             <VictoryZoomContainer
               onTouchStart={onTouchStart}
               onTouchEnd={onTouchEnd}
               responsive={false}
               zoomDimension="x"
-              zoomDomain={zoomDomain}
+              zoomDomain={graphDomain}
               onZoomDomainChange={onZoomDomainChange}
             />
           }>
           <VictoryAxis crossAxis dependentAxis />
           <VictoryAxis
             crossAxis
-            tickFormat={x => new Date(x).getFullYear()}
+            // tickFormat={x => new Date(x).getFullYear()}
             tickCount={5}
           />
           <VictoryLine
-            // animate={{
-            //   duration: 2000,
-            //   onLoad: {duration: 1000},
-            // }}
+            interpolation="linear"
             style={{
-              data: {stroke: 'darkblue'},
+              data: {stroke: graphData ? 'darkblue' : 'rgba(0, 0, 0, 0)'},
             }}
             data={graphData}
           />
         </VictoryChart>
 
         <VictoryChart
+          // domain={entireDomain}
           theme={VictoryTheme.material}
           width={chartWidth}
           height={50}
-          scale={{x: 'time'}}
+          scale={{x: 'date'}}
           padding={{top: 0, left: 50, right: 50, bottom: 30}}
           containerComponent={
             <VictoryBrushContainer
@@ -87,14 +128,15 @@ const DataChart: React.FC<DataChartProps> = ({
               onTouchEnd={onTouchEnd}
               responsive={false}
               brushDimension="x"
-              brushDomain={selectedDomain}
+              brushDomain={selectBarDomain}
               onBrushDomainChange={onBrushDomainChange}
             />
           }>
           <VictoryAxis tickFormat={() => ''} tickValues={[]} />
           <VictoryLine
+            interpolation="linear"
             style={{
-              data: {stroke: 'orange'},
+              data: {stroke: graphData ? 'darkblue' : 'rgba(0, 0, 0, 0)'},
             }}
             data={graphData}
           />
@@ -105,14 +147,7 @@ const DataChart: React.FC<DataChartProps> = ({
 };
 
 const styles = StyleSheet.create({
-  root: {},
-  activityIndicator: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    backgroundColor: 'rgba(0,0,0,0.05)',
-  },
-  symbol: {fontSize: 50, fontWeight: 'bold'},
+  root: {marginLeft: 30},
 });
 
 export default DataChart;

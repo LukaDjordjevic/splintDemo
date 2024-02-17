@@ -14,12 +14,16 @@ type TableRowProps = {
 const TableRow: React.FC<TableRowProps> = ({data, isHeader, onPress}) => {
   const {ticker, price, change_amount, change_percentage, volume} = data;
 
-  const textStyle = isHeader ? styles.headerRow : {};
+  const textStyle = isHeader
+    ? styles.headerRow
+    : {color: 'black', fontSize: 15};
 
   const formattedPercentage = parseFloat(change_percentage).toFixed(2);
 
   const formattedVolume = formatBigNumber(parseInt(volume, 10));
-  const percentageColor = getColorByPercentage(parseFloat(formattedPercentage));
+  const percentageColor = getColorByPercentage(
+    parseFloat(formattedPercentage) || 0,
+  );
 
   return (
     <TouchableOpacity onPress={() => onPress(data.ticker)}>
@@ -50,13 +54,14 @@ const styles = StyleSheet.create({
   root: {
     display: 'flex',
     flexDirection: 'row',
-    height: 30,
+    height: 40,
     fontWeight: '100',
   },
   item: {
     flex: 1,
   },
   headerRow: {
+    color: 'black',
     fontSize: 14,
     fontWeight: 'bold',
   },

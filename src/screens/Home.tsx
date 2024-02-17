@@ -13,6 +13,7 @@ import {
 } from '../store/homeSlice';
 import StocksList from '../components/StocksList';
 import LoadingSpinner from '../components/LoadingSpinner';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 type HomeProps = {
   navigation: any;
@@ -20,11 +21,11 @@ type HomeProps = {
 
 const Home: React.FC<HomeProps> = ({navigation}) => {
   console.log('home renderrr');
-  const dispatch: AppDispatch = useDispatch();
 
+  const dispatch: AppDispatch = useDispatch();
+  const apiStatus = useSelector(selectStatus);
   const gainers = useSelector(selectGainers);
   const losers = useSelector(selectLosers);
-  const apiStatus = useSelector(selectStatus);
   const mostTraded = useSelector(selectMostActive);
 
   type ListType = 'gainers' | 'losers' | 'mostTraded';
@@ -72,13 +73,17 @@ const Home: React.FC<HomeProps> = ({navigation}) => {
               setListType('losers');
             }}
           />
+          <Icon
+            onPress={() => {
+              dispatch(getStocksLists());
+            }}
+            name="refresh"
+            size={30}
+            color="#49f"
+          />
         </View>
 
-        <ScrollView>
-          {listData ? (
-            <StocksList data={listData} onPress={onTableRowPress} />
-          ) : null}
-        </ScrollView>
+        <StocksList data={listData} onPress={onTableRowPress} />
       </View>
     </SafeAreaView>
   );
@@ -89,6 +94,7 @@ const styles = StyleSheet.create({
     height: '100%',
     marginLeft: 20,
     marginRight: 20,
+    marginTop: 20,
   },
   activityIndicator: {
     position: 'absolute',
@@ -101,8 +107,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     justifyContent: 'space-around',
+    alignItems: 'center',
     marginTop: 20,
-    marginBottom: 20,
+    marginBottom: 40,
   },
 });
 
