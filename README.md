@@ -1,4 +1,5 @@
 # SplintInvest demo app
+
 By Luka Djordjevic (lulo.djordjevic@gmail.com)
 
 ## About
@@ -6,7 +7,7 @@ By Luka Djordjevic (lulo.djordjevic@gmail.com)
 This is a simple react-native app that uses [Alpha Vantage API](https://www.alphavantage.co/documentation/) to retrieve stocks lists and show them on the **Home page**. You can the click on a particular stock and see it's **Stock details page**.
 
 The app is set up to use 'demo' API key. This is fine but all the stock details pages will be displaying IBM data.<br>
-You can edit `/src/constants.ts` and switch to a private key which allows a few dozen calls per day. You can also provide you own key.
+You can edit `/src/constants.ts` and switch to a private key which allows a few dozen calls per day. You can also provide your own key.
 
 ## Installation
 
