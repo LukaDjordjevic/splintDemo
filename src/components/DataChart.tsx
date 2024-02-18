@@ -1,8 +1,6 @@
 import React, {useState} from 'react';
-import {minBy, maxBy} from 'lodash';
-
 import {View, SafeAreaView, StyleSheet} from 'react-native';
-
+import {minBy, maxBy} from 'lodash';
 import {
   VictoryChart,
   VictoryZoomContainer,
@@ -13,7 +11,7 @@ import {
 } from 'victory-native';
 
 interface DataChartProps {
-  graphData: GraphDataPointType[];
+  graphData: GraphDataPointType[] | null;
   onTouchStart: Function;
   onTouchEnd: Function;
 }
@@ -30,20 +28,29 @@ const DataChart: React.FC<DataChartProps> = ({
   onTouchEnd,
 }) => {
   const getEntireDomain = (data: GraphDataPointType[]) => {
+    if (!graphData) return {x: [0, 1], y: [0, 1]};
     return {
-      y: [minBy(data, (d: any) => d?.y)?.y, maxBy(data, (d: any) => d?.y)?.y],
-      x: [0, graphData.length - 1],
+      y: [minBy(data, (d: any) => d.y)?.y, maxBy(data, (d: any) => d.y)?.y],
+      x: [0, graphData?.length - 1],
     };
   };
 
   const entireDomain = getEntireDomain(graphData);
-  const initialDomain = {
-    x: [Math.floor(graphData.length * 0.8), graphData.length - 1],
-    y: entireDomain.y,
-  };
+  const initialDomain = graphData
+    ? {
+        x: [Math.floor(graphData?.length * 0.8), graphData?.length - 1],
+        y: entireDomain.y,
+      }
+    : {x: [0, 1], y: [0, 1]};
 
-  const [graphDomain, setGraphDomain] = useState(initialDomain);
-  const [selectBarDomain, setSelectBarDomain] = useState(initialDomain);
+  // Quick & dirty fix for graph not doing initial render the firts time it's accessed
+  // setTimeout(() => {
+  //   setGraphDomain(initialDomain);
+  //   setGraphDomain(entireDomain);
+  // }, 0);
+
+  const [graphDomain, setGraphDomain] = useState();
+  const [selectBarDomain, setSelectBarDomain] = useState();
 
   const onZoomDomainChange = domain => {
     setSelectBarDomain(domain);
@@ -63,7 +70,7 @@ const DataChart: React.FC<DataChartProps> = ({
           theme={VictoryTheme.material}
           width={chartWidth}
           height={300}
-          scale={{x: 'date'}}
+          scale={{x: 'time'}}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
           containerComponent={
@@ -94,7 +101,7 @@ const DataChart: React.FC<DataChartProps> = ({
           theme={VictoryTheme.material}
           width={chartWidth}
           height={50}
-          scale={{x: 'date'}}
+          scale={{x: 'time'}}
           padding={{top: 0, left: 50, right: 50, bottom: 30}}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}

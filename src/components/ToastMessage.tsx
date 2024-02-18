@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react';
-import {StyleSheet} from 'react-native';
 import {Portal, Snackbar} from 'react-native-paper';
 import {useSelector} from 'react-redux';
 import {selectToastMessage} from '../store/appSlice';
@@ -32,9 +31,5 @@ const ToastMessage: React.FC<ToastMessageProps> = () => {
     </Portal>
   );
 };
-
-const styles = StyleSheet.create({
-  root: {},
-});
 
 export default ToastMessage;

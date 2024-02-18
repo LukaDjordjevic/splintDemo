@@ -7,7 +7,6 @@ import {
   getDailyData,
   selectCompanyOverview,
   selectGraphData,
-  selectStatus,
 } from '../store/stockDetailsSlice';
 
 import {AppDispatch} from '../store/store';
@@ -24,33 +23,34 @@ const StockDetails: React.FC<StockDetailsProps> = ({route}) => {
   const dispatch: AppDispatch = useDispatch();
   const symbol = route.params?.symbol || 'IBM';
 
-  const apiStatus = useSelector(selectStatus);
+  const [isFetchingData, setIsFetchingData] = useState<boolean>(true);
   const companyOverview = useSelector(selectCompanyOverview);
   const graphData = useSelector(selectGraphData);
 
   const [scrollEnabled, setScrollEnabled] = useState<boolean>();
 
   useEffect(() => {
-    dispatch(getDailyData('IBM'));
-    dispatch(getCompanyOverview('IBM'));
+    const fetchAllData = async () => {
+      const dailyDataPromise = dispatch(getDailyData('IBM'));
+      const companyOverviewPromise = dispatch(getCompanyOverview('IBM'));
+      await Promise.all([dailyDataPromise, companyOverviewPromise]);
+      setIsFetchingData(false);
+    };
+    fetchAllData();
   }, [symbol, dispatch]);
 
   return (
     <SafeAreaView>
       <ToastMessage />
-      <LoadingSpinner visible={apiStatus === 'loading'} />
+      <LoadingSpinner visible={isFetchingData} />
       <ScrollView scrollEnabled={scrollEnabled}>
         <View style={styles.root}>
           <Text style={styles.symbol}>{symbol}</Text>
-          {graphData ? (
-            <DataChart
-              graphData={graphData}
-              onTouchStart={() => setScrollEnabled(false)}
-              onTouchEnd={() => setScrollEnabled(true)}
-            />
-          ) : (
-            <View style={styles.placeholder} />
-          )}
+          <DataChart
+            graphData={graphData}
+            onTouchStart={() => setScrollEnabled(false)}
+            onTouchEnd={() => setScrollEnabled(true)}
+          />
           <CompanyOverview {...companyOverview} />
           <Text style={styles.description}>{companyOverview?.Description}</Text>
         </View>

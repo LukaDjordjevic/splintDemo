@@ -93,6 +93,7 @@ const stockDetailsSlice = createSlice({
     builder.addCase(getDailyData.pending, state => {
       state.status = 'loading';
       state.graphData = null;
+      state.companyOverview = null;
     });
     builder.addCase(
       getDailyData.fulfilled,
@@ -101,12 +102,12 @@ const stockDetailsSlice = createSlice({
         state.graphData = action.payload;
       },
     );
-    builder.addCase(getDailyData.rejected, (state, action) => {
-      state.status = 'failed';
-    });
     builder.addCase(getCompanyOverview.pending, state => {
       state.status = 'loading';
       state.companyOverview = null;
+    });
+    builder.addCase(getDailyData.rejected, state => {
+      state.status = 'failed';
     });
     builder.addCase(
       getCompanyOverview.fulfilled,
@@ -115,7 +116,7 @@ const stockDetailsSlice = createSlice({
         state.companyOverview = action.payload;
       },
     );
-    builder.addCase(getCompanyOverview.rejected, (state, action) => {
+    builder.addCase(getCompanyOverview.rejected, state => {
       state.status = 'failed';
     });
   },
