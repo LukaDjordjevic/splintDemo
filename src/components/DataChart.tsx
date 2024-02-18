@@ -36,18 +36,6 @@ const DataChart: React.FC<DataChartProps> = ({
   };
 
   const entireDomain = getEntireDomain(graphData);
-  const initialDomain = graphData
-    ? {
-        x: [Math.floor(graphData?.length * 0.8), graphData?.length - 1],
-        y: entireDomain.y,
-      }
-    : {x: [0, 1], y: [0, 1]};
-
-  // Quick & dirty fix for graph not doing initial render the firts time it's accessed
-  // setTimeout(() => {
-  //   setGraphDomain(initialDomain);
-  //   setGraphDomain(entireDomain);
-  // }, 0);
 
   const [graphDomain, setGraphDomain] = useState();
   const [selectBarDomain, setSelectBarDomain] = useState();
