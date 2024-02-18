@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {View, StyleSheet, SafeAreaView, ScrollView, Button} from 'react-native';
-// import {Button, RadioButton} from 'react-native-paper';
+import {View, StyleSheet, SafeAreaView, Button, Text} from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 
 import {AppDispatch} from '../store/store';
 import {
   getStocksLists,
   selectGainers,
+  selectLastUpdted,
   selectLosers,
   selectMostActive,
   selectStatus,
@@ -20,12 +20,11 @@ type HomeProps = {
 };
 
 const Home: React.FC<HomeProps> = ({navigation}) => {
-  console.log('home renderrr');
-
   const dispatch: AppDispatch = useDispatch();
   const apiStatus = useSelector(selectStatus);
   const gainers = useSelector(selectGainers);
   const losers = useSelector(selectLosers);
+  const lastUpdated = useSelector(selectLastUpdted);
   const mostTraded = useSelector(selectMostActive);
 
   type ListType = 'gainers' | 'losers' | 'mostTraded';
@@ -83,6 +82,10 @@ const Home: React.FC<HomeProps> = ({navigation}) => {
           />
         </View>
 
+        <Text style={styles.lastUpdated}>
+          {lastUpdated ? `Last updated: ${lastUpdated}` : ''}
+        </Text>
+
         <StocksList data={listData} onPress={onTableRowPress} />
       </View>
     </SafeAreaView>
@@ -109,7 +112,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     marginTop: 20,
-    marginBottom: 40,
+    marginBottom: 30,
+  },
+  lastUpdated: {
+    color: 'grey',
+    fontStyle: 'italic',
+    textAlign: 'center',
+    marginBottom: 20,
   },
 });
 

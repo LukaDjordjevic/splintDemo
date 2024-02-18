@@ -14,21 +14,21 @@ import {AppDispatch} from '../store/store';
 import DataChart from '../components/DataChart';
 import LoadingSpinner from '../components/LoadingSpinner';
 import CompanyOverview from '../components/CompanyOverview';
+import ToastMessage from '../components/ToastMessage';
 
 type StockDetailsProps = {
   navigation: {navigate: Function};
   route: {params: {symbol: String}};
 };
-const StockDetails: React.FC<StockDetailsProps> = ({navigation, route}) => {
+const StockDetails: React.FC<StockDetailsProps> = ({route}) => {
   const dispatch: AppDispatch = useDispatch();
+  const symbol = route.params?.symbol || 'IBM';
+
   const apiStatus = useSelector(selectStatus);
   const companyOverview = useSelector(selectCompanyOverview);
-  const symbol = route.params?.symbol || 'IBM';
-  console.log('details render');
+  const graphData = useSelector(selectGraphData);
 
   const [scrollEnabled, setScrollEnabled] = useState<boolean>();
-
-  const graphData = useSelector(selectGraphData);
 
   useEffect(() => {
     dispatch(getDailyData('IBM'));
@@ -37,6 +37,7 @@ const StockDetails: React.FC<StockDetailsProps> = ({navigation, route}) => {
 
   return (
     <SafeAreaView>
+      <ToastMessage />
       <LoadingSpinner visible={apiStatus === 'loading'} />
       <ScrollView scrollEnabled={scrollEnabled}>
         <View style={styles.root}>
@@ -47,7 +48,9 @@ const StockDetails: React.FC<StockDetailsProps> = ({navigation, route}) => {
               onTouchStart={() => setScrollEnabled(false)}
               onTouchEnd={() => setScrollEnabled(true)}
             />
-          ) : null}
+          ) : (
+            <View style={styles.placeholder} />
+          )}
           <CompanyOverview {...companyOverview} />
           <Text style={styles.description}>{companyOverview?.Description}</Text>
         </View>
@@ -69,6 +72,9 @@ const styles = StyleSheet.create({
   description: {
     fontStyle: 'italic',
     color: 'grey',
+  },
+  placeholder: {
+    height: 350,
   },
 });
 

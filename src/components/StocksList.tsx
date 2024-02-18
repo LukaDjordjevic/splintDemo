@@ -1,5 +1,5 @@
 import React, {PropsWithoutRef} from 'react';
-import {View, Text, StyleSheet, ScrollView} from 'react-native';
+import {View, StyleSheet, ScrollView} from 'react-native';
 
 import {StockListItemType} from '../store/homeSlice';
 import TableRow from './TableRow';
@@ -10,8 +10,6 @@ type StocksListProps = PropsWithoutRef<{
 }>;
 
 const StocksList: React.FC<StocksListProps> = ({data, onPress}) => {
-  console.log('list render');
-
   const items = data?.map(stock => (
     <TableRow key={stock.ticker as React.Key} data={stock} onPress={onPress} />
   ));
@@ -36,7 +34,7 @@ const StocksList: React.FC<StocksListProps> = ({data, onPress}) => {
 
 const styles = StyleSheet.create({
   root: {
-    marginBottom: 100,
+    marginBottom: 230,
   },
   item: {flex: 1},
   columns: {

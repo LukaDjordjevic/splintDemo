@@ -21,6 +21,7 @@ const TableRow: React.FC<TableRowProps> = ({data, isHeader, onPress}) => {
   const formattedPercentage = parseFloat(change_percentage).toFixed(2);
 
   const formattedVolume = formatBigNumber(parseInt(volume, 10));
+  const amountColor = getColorByPercentage(parseFloat(change_amount) || 0);
   const percentageColor = getColorByPercentage(
     parseFloat(formattedPercentage) || 0,
   );
@@ -35,10 +36,12 @@ const TableRow: React.FC<TableRowProps> = ({data, isHeader, onPress}) => {
           <Text style={textStyle}>{price}</Text>
         </View>
         <View style={styles.item}>
-          <Text style={textStyle}>{change_amount}</Text>
+          <Text style={isHeader ? styles.headerRow : {color: amountColor}}>
+            {change_amount}
+          </Text>
         </View>
         <View style={styles.item}>
-          <Text style={{color: percentageColor}}>
+          <Text style={isHeader ? styles.headerRow : {color: percentageColor}}>
             {isHeader ? change_percentage : `${formattedPercentage}%`}
           </Text>
         </View>

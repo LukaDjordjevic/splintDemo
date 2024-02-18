@@ -1,7 +1,8 @@
 import {createSlice, PayloadAction, createAsyncThunk} from '@reduxjs/toolkit';
 
 import {RootState} from './Store';
-import {apiKey} from '../constants';
+import {apiKey, toastMessages} from '../constants';
+import {setToastMessage} from './appSlice';
 
 export interface StockListItemType {
   ticker: string;
@@ -15,6 +16,7 @@ interface HomeSliceType {
   gainers: StockListItemType[] | null;
   losers: StockListItemType[] | null;
   mostActive: StockListItemType[] | null;
+  lastUpdated: string | null;
   status: 'idle' | 'failed' | 'loading';
 }
 
@@ -22,22 +24,28 @@ const initialState: HomeSliceType = {
   gainers: null,
   losers: null,
   mostActive: null,
+  lastUpdated: null,
   status: 'idle',
 };
 
 export const getStocksLists = createAsyncThunk(
   'home/getStocksLists',
-  async (_, {dispatch, getState}) => {
+  async (_, {dispatch}) => {
     try {
       const url = `https://www.alphavantage.co/query?function=TOP_GAINERS_LOSERS&apikey=${apiKey}`;
       const response = await fetch(url);
       const json = await response.json();
-      if (json?.Information) {
-        console.log('rejecting');
+      if (json?.Information?.includes('API key')) {
+        dispatch(setToastMessage(toastMessages.API_KEY_REJECTED));
         return Promise.reject('API key rejected');
+      }
+      if (!json.top_gainers) {
+        dispatch(setToastMessage(toastMessages.DEFAULT_NETWORK_ERROR));
+        return Promise.reject(toastMessages.DEFAULT_NETWORK_ERROR);
       }
       return json;
     } catch (error) {
+      dispatch(setToastMessage(toastMessages.DEFAULT_NETWORK_ERROR));
       console.log('error: ', error);
     }
   },
@@ -53,6 +61,7 @@ const HomeSlice = createSlice({
       state.gainers = null;
       state.losers = null;
       state.mostActive = null;
+      state.lastUpdated = null;
     });
     builder.addCase(
       getStocksLists.fulfilled,
@@ -61,6 +70,7 @@ const HomeSlice = createSlice({
         state.gainers = action.payload.top_gainers;
         state.losers = action.payload.top_losers;
         state.mostActive = action.payload.most_actively_traded;
+        state.lastUpdated = action.payload.last_updated;
       },
     );
     builder.addCase(getStocksLists.rejected, (state, action) => {
@@ -75,6 +85,7 @@ export const {} = HomeSlice.actions;
 export const selectGainers = (state: RootState) => state.home.gainers;
 export const selectLosers = (state: RootState) => state.home.losers;
 export const selectMostActive = (state: RootState) => state.home.mostActive;
+export const selectLastUpdted = (state: RootState) => state.home.lastUpdated;
 export const selectStatus = (state: RootState) => state.home.status;
 
 export default HomeSlice.reducer;

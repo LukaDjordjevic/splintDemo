@@ -1,8 +1,10 @@
 import {createSlice, PayloadAction, createAsyncThunk} from '@reduxjs/toolkit';
-import {apiKey} from '../constants';
+import {apiKey, toastMessages} from '../constants';
 
 import {RootState} from './Store';
 import {convertApiDataToGraphFormat} from '../util/data';
+import {setToastMessage} from './appSlice';
+import {GraphDataPointType} from '../components/DataChart';
 
 interface StockTimePointValuesType {
   '1. open': string;
@@ -13,10 +15,6 @@ interface StockTimePointValuesType {
 }
 export interface StockTimeRangeType {
   [key: string]: StockTimePointValuesType;
-}
-export interface GraphDataPointType {
-  x: String;
-  y: Number;
 }
 
 export interface CompanyOverviewType {
@@ -46,18 +44,18 @@ const initialState: StockDetailsSliceType = {
 
 export const getCompanyOverview = createAsyncThunk(
   'stockDetails/getCompanyOverview',
-  async (symbol: String) => {
+  async (symbol: String, {dispatch}) => {
     try {
-      const url = `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${symbol}&apikey=demo`;
+      const url = `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${symbol}&apikey=${apiKey}`;
       const response = await fetch(url);
       const json = await response.json();
-      console.log('overview json: ', json);
-      if (json?.Information) {
-        console.log('rejecting');
+      if (json?.Information?.includes('API key')) {
+        dispatch(setToastMessage(toastMessages.API_KEY_REJECTED));
         return Promise.reject('API key rejected');
       }
       return json;
     } catch (error) {
+      dispatch(setToastMessage(toastMessages.DEFAULT_NETWORK_ERROR));
       console.log('error: ', error);
     }
   },
@@ -65,19 +63,23 @@ export const getCompanyOverview = createAsyncThunk(
 
 export const getDailyData = createAsyncThunk(
   'stockDetails/getDailyData',
-  async (symbol: String) => {
+  async (symbol: String, {dispatch}) => {
     try {
       const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=full&apikey=${apiKey}`;
       const response = await fetch(url);
       const json = await response.json();
-      if (json?.Information) {
-        console.log('rejecting');
+      if (json?.Information?.includes('API key')) {
+        dispatch(setToastMessage(toastMessages.API_KEY_REJECTED));
         return Promise.reject('API key rejected');
       }
+      if (!json['Time Series (Daily)']) {
+        dispatch(setToastMessage(toastMessages.DEFAULT_NETWORK_ERROR));
+        return Promise.reject(toastMessages.DEFAULT_NETWORK_ERROR);
+      }
       const dailyData = json['Time Series (Daily)'];
-
       return convertApiDataToGraphFormat(dailyData);
     } catch (error) {
+      dispatch(setToastMessage(toastMessages.DEFAULT_NETWORK_ERROR));
       console.log('error: ', error);
     }
   },
@@ -100,7 +102,6 @@ const stockDetailsSlice = createSlice({
       },
     );
     builder.addCase(getDailyData.rejected, (state, action) => {
-      console.log('FAILED action: ', action);
       state.status = 'failed';
     });
     builder.addCase(getCompanyOverview.pending, state => {
@@ -115,7 +116,6 @@ const stockDetailsSlice = createSlice({
       },
     );
     builder.addCase(getCompanyOverview.rejected, (state, action) => {
-      console.log('FAILED action: ', action);
       state.status = 'failed';
     });
   },
@@ -126,7 +126,6 @@ export const {} = stockDetailsSlice.actions;
 //Selectors
 export const selectDaily = (state: RootState) =>
   state.stockDetails.dailyRawData;
-
 export const selectGraphData = (state: RootState) =>
   state.stockDetails.graphData;
 export const selectStatus = (state: RootState) => state.stockDetails.status;

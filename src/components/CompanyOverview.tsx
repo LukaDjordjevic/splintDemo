@@ -40,12 +40,8 @@ const CompanyOverview: React.FC<CompanyOverviewType> = ({
           <Text style={styles.keyName}>Revenue</Text>
         </View>
         <View style={styles.values}>
-          <View style={styles.alignRight}>
-            <Text style={styles.value}>{Name}</Text>
-          </View>
-          <View>
-            <Text style={styles.value}>{humanizeString(Address)}</Text>
-          </View>
+          <Text style={styles.value}>{Name}</Text>
+          <Text style={styles.value}>{humanizeString(Address)}</Text>
           <Text style={styles.value}>{Country}</Text>
           <Text style={styles.value}>{Exchange}</Text>
           <Text style={styles.value}>{humanizeString(Industry)}</Text>
@@ -64,7 +60,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   row: {
-    // width: 50,
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -86,12 +81,8 @@ const styles = StyleSheet.create({
   },
   values: {
     display: 'flex',
-    // width: 100,
     justifyContent: 'flex-end',
     textAlign: 'right',
-  },
-  alignRight: {
-    // textAlign: 'right',
   },
 });
 

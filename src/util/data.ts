@@ -1,3 +1,5 @@
+import {GraphDataPointType} from '../components/DataChart';
+
 export const convertApiDataToGraphFormat = (apiData: any) => {
   const dates = Object.keys(apiData);
 
@@ -21,4 +23,18 @@ export const convertApiDataToGraphFormat = (apiData: any) => {
   }
 
   return filteredGraphData;
+};
+
+export const getVisibleData = (
+  graphData: GraphDataPointType[],
+  graphDomain: any,
+) => {
+  const domainX = graphDomain.x;
+  const data = graphData.filter(
+    // is d "between" the ends of the visible x-domain?
+    (dataPoint: GraphDataPointType, index: number) => {
+      return index >= domainX[0] && index <= domainX[1];
+    },
+  );
+  return data;
 };
