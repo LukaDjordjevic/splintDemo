@@ -9,6 +9,7 @@ import {
   selectGraphData,
 } from '../store/stockDetailsSlice';
 
+import {apiKey} from '../constants';
 import {AppDispatch} from '../store/store';
 import DataChart from '../components/DataChart';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -31,8 +32,12 @@ const StockDetails: React.FC<StockDetailsProps> = ({route}) => {
 
   useEffect(() => {
     const fetchAllData = async () => {
-      const dailyDataPromise = dispatch(getDailyData('IBM'));
-      const companyOverviewPromise = dispatch(getCompanyOverview('IBM'));
+      const dailyDataPromise = dispatch(
+        getDailyData(apiKey === 'demo' ? 'IBM' : symbol),
+      );
+      const companyOverviewPromise = dispatch(
+        getCompanyOverview(apiKey === 'demo' ? 'IBM' : symbol),
+      );
       await Promise.all([dailyDataPromise, companyOverviewPromise]);
       setIsFetchingData(false);
     };
